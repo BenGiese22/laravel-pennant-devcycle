@@ -1,0 +1,70 @@
+{
+    "$schema": "https://getcomposer.org/schema.json",
+    "name": "ben-giese22/laravel-pennant-devcycle",
+    "version": "0.1.0",
+    "type": "library",
+    "description": "Laravel Pennant driver for DevCycle.",
+    "keywords": ["laravel", "pennant", "feature-flags", "devcycle"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Your Name",
+            "email": "you@example.com"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "devcycle/php-server-sdk": "^2.2",
+        "illuminate/http": "^10.0|^11.0|^12.0",
+        "illuminate/routing": "^10.0|^11.0|^12.0",
+        "illuminate/support": "^10.0|^11.0|^12.0",
+        "laravel/pennant": "^1.18"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.14",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^10.0",
+        "pestphp/pest": "^3.8",
+        "phpstan/phpstan": "^1.12"
+    },
+    "autoload": {
+        "psr-4": {
+            "BenGiese22\\LaravelPennantDevCycle\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "BenGiese22\\LaravelPennantDevCycle\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "pest",
+        "analyse": "phpstan analyse",
+        "format": "pint",
+        "ci": [
+            "@test",
+            "@analyse"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BenGiese22\\\\LaravelPennantDevCycle\\\\DevCycleServiceProvider"
+            ]
+        },
+        "branch-alias": {
+            "dev-main": "0.1.x-dev"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true,
+            "php-http/discovery": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}

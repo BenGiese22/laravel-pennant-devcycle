@@ -1,0 +1,19 @@
+includes:
+    - vendor/pestphp/pest/extension.neon
+
+parameters:
+    level: 6
+    paths:
+        - src
+        - tests
+    tmpDir: var/phpstan
+    parallel:
+        maximumNumberOfProcesses: 1
+    checkMissingIterableValueType: true
+    checkGenericClassInNonGenericObjectType: true
+    inferPrivatePropertyTypeFromConstructor: true
+    ignoreErrors:
+        - '#TestCase::[$]app#'
+        - '#TestCase::(getJson|patchJson)\(#'
+        - '#ExpectationInterface::once#'
+    reportUnmatchedIgnoredErrors: false

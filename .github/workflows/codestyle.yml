@@ -1,0 +1,25 @@
+name: Code Style
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  codestyle:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.3
+          coverage: none
+          extensions: curl, dom, mbstring, pcntl, pdo, sqlite, tokenizer
+
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Check formatting
+        run: composer format -- --test
