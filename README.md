@@ -1,15 +1,15 @@
 # Laravel Pennant DevCycle Driver
 
-[![Tests](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/tests.yml/badge.svg)](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/tests.yml)
-[![Code Style](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/codestyle.yml/badge.svg)](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/codestyle.yml)
-[![Static Analysis](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/ben-giese22/laravel-pennant-devcycle/actions/workflows/phpstan.yml)
+[![Tests](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/tests.yml/badge.svg)](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/tests.yml)
+[![Code Style](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/codestyle.yml/badge.svg)](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/codestyle.yml)
+[![Static Analysis](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/phpstan.yml/badge.svg)](https://github.com/bengiese22/laravel-pennant-devcycle/actions/workflows/phpstan.yml)
 
 A Laravel Pennant driver backed by the DevCycle PHP SDK. Pennant reads DevCycle Variables for feature evaluation; writes are intentionally unsupported (read-only).
 
 ## Installation
 
 ```bash
-composer require ben-giese22/laravel-pennant-devcycle
+composer require bengiese22/laravel-pennant-devcycle
 ```
 
 Pennant store configuration (`config/pennant.php`):
