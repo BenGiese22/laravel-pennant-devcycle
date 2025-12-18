@@ -1,6 +1,6 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "ben-giese22/laravel-pennant-devcycle",
+    "name": "bengiese22/laravel-pennant-devcycle",
     "version": "0.1.0",
     "type": "library",
     "description": "Laravel Pennant driver for DevCycle.",
