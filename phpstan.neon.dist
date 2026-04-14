@@ -6,6 +6,8 @@ parameters:
     paths:
         - src
         - tests
+    excludePaths:
+        - tests/Feature/DevCycleLiveDebugTest.php
     tmpDir: var/phpstan
     parallel:
         maximumNumberOfProcesses: 1

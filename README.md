@@ -91,18 +91,36 @@ $variant = Feature::for($user)->value('onboarding-flow');
 
 Writes (`define`, `set`, `activate`, `deactivate`) are not supported and will throw a `BadMethodCallException`.
 
-### Default Values
+### Default Values and Type Matching
 
-When the DevCycle SDK cannot find a variable (the flag doesn't exist, isn't enabled, or the user isn't targeted), it returns the configured `default` value. There is no way to distinguish "flag is off" from "flag doesn't exist in DevCycle" — both return the default.
+The `default` value in your Pennant store config serves two purposes:
 
-Set the default per-store in `config/pennant.php`:
+1. **Fallback** — returned when a variable doesn't exist, the flag is disabled, or the user isn't targeted
+2. **Type hint** — the DevCycle SDK uses the default's type to resolve the variable. If the types don't match, the SDK silently returns your default even when the flag exists and is enabled.
 
 ```php
 'devcycle' => [
     'driver' => 'devcycle',
     'sdk_key' => env('DEVCYCLE_SERVER_SDK_KEY'),
-    'default' => false,
+    'default' => false, // boolean — will only resolve boolean variables correctly
 ],
+```
+
+For example, if a DevCycle variable is a boolean but your default is a string, the SDK returns the string default — no error, no exception. The flag is invisible.
+
+This means all three of these cases produce identical behavior:
+- The flag doesn't exist in DevCycle
+- The flag is disabled or the user isn't targeted
+- The flag exists but its type doesn't match the default's type
+
+**If your project uses a mix of boolean and string variables**, use `Feature::value()` with an explicit default per-call instead of relying on the store-level default:
+
+```php
+// Boolean flag — pass a boolean default
+$enabled = Feature::for($user)->value('checkout-redesign') ?? false;
+
+// String flag — pass a string default
+$variant = Feature::for($user)->value('onboarding-flow') ?? 'control';
 ```
 
 ## Management API (optional)

@@ -23,7 +23,12 @@ composer ci          # test + analyse
 
 ## Important Behavior
 
-The DevCycle PHP SDK silently returns the default value when a flag doesn't exist or isn't enabled. There is no way to distinguish "flag off" from "flag missing." This is a DevCycle SDK limitation, not a driver bug.
+The DevCycle PHP SDK uses the `default` parameter as both a fallback value and a type hint. The SDK silently returns the default when:
+- The flag doesn't exist in DevCycle
+- The flag is disabled or the user isn't targeted
+- **The flag exists but its type doesn't match the default's type**
+
+All three cases are indistinguishable — no error, no exception. This was validated against live DevCycle (2026-04-14). A boolean flag queried with a string default returns the string, not the flag's value.
 
 ## Testing Notes
 
