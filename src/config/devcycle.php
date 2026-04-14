@@ -3,6 +3,11 @@
 return [
     'register_routes' => false,
 
+    'routes' => [
+        'middleware' => ['api'],
+        'prefix' => 'api/devcycle',
+    ],
+
     'mgmt' => [
         'client_id' => env('DEVCYCLE_MGMT_CLIENT_ID'),
         'client_secret' => env('DEVCYCLE_MGMT_CLIENT_SECRET'),

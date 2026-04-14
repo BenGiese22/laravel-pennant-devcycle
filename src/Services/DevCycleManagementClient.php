@@ -5,16 +5,21 @@ declare(strict_types=1);
 namespace BenGiese22\LaravelPennantDevCycle\Services;
 
 use Illuminate\Http\Client\PendingRequest;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class DevCycleManagementClient
 {
-    private ?string $accessToken = null;
+    private const TOKEN_CACHE_KEY = 'devcycle:mgmt:access_token';
+
+    private const TOKEN_TTL_BUFFER_SECONDS = 60;
 
     public function getAccessToken(): string
     {
-        if ($this->accessToken) {
-            return $this->accessToken;
+        $cached = Cache::get(self::TOKEN_CACHE_KEY);
+
+        if (is_string($cached)) {
+            return $cached;
         }
 
         $authBase = rtrim((string) config('devcycle.mgmt.auth_base'), '/');
@@ -28,9 +33,13 @@ class DevCycleManagementClient
 
         $response->throw();
 
-        $this->accessToken = (string) $response->json('access_token');
+        $token = (string) $response->json('access_token');
+        $expiresIn = (int) $response->json('expires_in', 3600);
+        $ttl = max($expiresIn - self::TOKEN_TTL_BUFFER_SECONDS, 60);
 
-        return $this->accessToken;
+        Cache::put(self::TOKEN_CACHE_KEY, $token, $ttl);
+
+        return $token;
     }
 
     /**

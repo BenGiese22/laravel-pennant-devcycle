@@ -8,8 +8,8 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Your Name",
-            "email": "you@example.com"
+            "name": "Benjamin Giese",
+            "email": "bengiese22@gmail.com"
         }
     ],
     "require": {
@@ -23,7 +23,7 @@
     "require-dev": {
         "laravel/pint": "^1.14",
         "mockery/mockery": "^1.6",
-        "orchestra/testbench": "^10.0",
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
         "pestphp/pest": "^3.8",
         "phpstan/phpstan": "^1.12"
     },
@@ -49,7 +49,7 @@
     "extra": {
         "laravel": {
             "providers": [
-                "BenGiese22\\\\LaravelPennantDevCycle\\\\DevCycleServiceProvider"
+                "BenGiese22\\LaravelPennantDevCycle\\DevCycleServiceProvider"
             ]
         },
         "branch-alias": {

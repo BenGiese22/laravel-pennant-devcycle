@@ -12,7 +12,15 @@ A Laravel Pennant driver backed by the DevCycle PHP SDK. Pennant reads DevCycle 
 composer require bengiese22/laravel-pennant-devcycle
 ```
 
-Pennant store configuration (`config/pennant.php`):
+The package is auto-discovered via the service provider. Publish the optional config file:
+
+```bash
+php artisan vendor:publish --tag=devcycle-config
+```
+
+## Configuration
+
+Add a `devcycle` store to `config/pennant.php`:
 
 ```php
 return [
@@ -22,51 +30,136 @@ return [
         'devcycle' => [
             'driver' => 'devcycle',
             'sdk_key' => env('DEVCYCLE_SERVER_SDK_KEY'),
-            'default' => false, // optional default variable value
+            'default' => false, // default value when a variable is not found
         ],
     ],
 ];
 ```
 
-The package is auto-discovered via the service provider and publishes `config/devcycle.php` for advanced settings.
+## Setting Up Your User Model
+
+Scopes passed to `Feature::for()` must implement Pennant's `FeatureScopeable` and `FeatureScopeSerializeable` contracts and return a `DevCycleUser` instance.
+
+The easiest way is to add the included trait to your User model:
+
+```php
+use BenGiese22\LaravelPennantDevCycle\Concerns\HasDevCycleFeatureScope;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Pennant\Contracts\FeatureScopeable;
+use Laravel\Pennant\Contracts\FeatureScopeSerializeable;
+
+class User extends Authenticatable implements FeatureScopeable, FeatureScopeSerializeable
+{
+    use HasDevCycleFeatureScope;
+}
+```
+
+The trait maps `id`, `email`, and `name` to the `DevCycleUser` automatically. If you need custom data (e.g., custom data fields for targeting), override `toDevCycleUser()`:
+
+```php
+use DevCycle\Model\DevCycleUser;
+
+protected function toDevCycleUser(): DevCycleUser
+{
+    return new DevCycleUser([
+        'user_id' => (string) $this->id,
+        'email' => $this->email,
+        'name' => $this->name,
+        'customData' => [
+            'plan' => $this->plan,
+            'organization_id' => $this->organization_id,
+        ],
+    ]);
+}
+```
 
 ## Usage
 
-DevCycle Variable keys map directly to Pennant feature names. Scopes must implement `FeatureScopeable` and return a `DevCycleUser` from `toFeatureIdentifier('devcycle')`.
+DevCycle Variable keys map directly to Pennant feature names:
 
 ```php
 use Laravel\Pennant\Feature;
 
-$enabled = Feature::for($user)->active('checkout-redesign');
+// Boolean check
+if (Feature::for($user)->active('checkout-redesign')) {
+    // new checkout flow
+}
+
+// Get the variable value (strings, numbers, JSON)
+$variant = Feature::for($user)->value('onboarding-flow');
 ```
 
-Writes such as `define`, `set`, or `activate` are not supported by this driver.
+Writes (`define`, `set`, `activate`, `deactivate`) are not supported and will throw a `BadMethodCallException`.
+
+### Default Values
+
+When the DevCycle SDK cannot find a variable (the flag doesn't exist, isn't enabled, or the user isn't targeted), it returns the configured `default` value. There is no way to distinguish "flag is off" from "flag doesn't exist in DevCycle" — both return the default.
+
+Set the default per-store in `config/pennant.php`:
+
+```php
+'devcycle' => [
+    'driver' => 'devcycle',
+    'sdk_key' => env('DEVCYCLE_SERVER_SDK_KEY'),
+    'default' => false,
+],
+```
 
 ## Management API (optional)
 
-When `devcycle.register_routes` is enabled in `config/devcycle.php`, the package registers API routes to proxy DevCycle's Management API:
+The package can proxy DevCycle's Management API for listing and updating features. This is disabled by default.
 
-- `GET /api/devcycle/features` — list project features (override project with `?project=`).
-- `GET /api/devcycle/features/{featureKey}` — fetch a feature.
-- `PATCH /api/devcycle/features/{featureKey}` — update a feature payload.
+Enable it in `config/devcycle.php`:
 
-Configure credentials in `config/devcycle.php` or environment variables:
+```php
+'register_routes' => true,
+```
 
-- `DEVCYCLE_MGMT_CLIENT_ID`
-- `DEVCYCLE_MGMT_CLIENT_SECRET`
-- `DEVCYCLE_MGMT_PROJECT_KEY`
-- `DEVCYCLE_MGMT_API_BASE` (optional)
-- `DEVCYCLE_MGMT_AUTH_BASE` (optional)
+### Routes
+
+| Method  | URI                                     | Description       |
+|---------|-----------------------------------------|-------------------|
+| GET     | `/api/devcycle/features`                | List features     |
+| GET     | `/api/devcycle/features/{featureKey}`   | Get a feature     |
+| PATCH   | `/api/devcycle/features/{featureKey}`   | Update a feature  |
+
+Override the project key per-request with `?project=other-project`.
+
+### Route Middleware
+
+By default, routes use the `api` middleware group. **You should add authentication middleware** before enabling routes in production:
+
+```php
+// config/devcycle.php
+'routes' => [
+    'middleware' => ['api', 'auth:sanctum'],
+    'prefix' => 'api/devcycle',
+],
+```
+
+### Credentials
+
+Set these in `config/devcycle.php` or via environment variables:
+
+| Variable                      | Description               |
+|-------------------------------|---------------------------|
+| `DEVCYCLE_MGMT_CLIENT_ID`    | OAuth client ID           |
+| `DEVCYCLE_MGMT_CLIENT_SECRET`| OAuth client secret       |
+| `DEVCYCLE_MGMT_PROJECT_KEY`  | Default project key       |
+| `DEVCYCLE_MGMT_API_BASE`     | API base URL (optional)   |
+| `DEVCYCLE_MGMT_AUTH_BASE`    | Auth base URL (optional)  |
+
+OAuth access tokens are cached automatically using Laravel's cache driver.
 
 ## Testing
 
 ```bash
-composer test
+composer test        # Run Pest tests
+composer analyse     # Run PHPStan (level 6)
+./vendor/bin/pint --test  # Check code style
+composer ci          # Run tests + analysis
 ```
 
-Static analysis and formatting:
+## License
 
-```bash
-composer analyse
-./vendor/bin/pint --test
-```
+MIT. See [LICENSE.md](LICENSE.md).

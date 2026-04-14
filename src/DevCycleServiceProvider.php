@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BenGiese22\LaravelPennantDevCycle;
 
+use BenGiese22\LaravelPennantDevCycle\Services\DevCycleManagementClient;
 use DevCycle\Api\DevCycleClient;
 use DevCycle\Model\DevCycleOptions;
 use Illuminate\Support\ServiceProvider;
@@ -18,7 +19,7 @@ class DevCycleServiceProvider extends ServiceProvider
         $this->app->singleton(DevCycleClient::class, function ($app) {
             $config = $app['config']->get('pennant.stores.devcycle', []);
 
-            $sdkKey = $config['sdk_key'] ?? env('DEVCYCLE_SERVER_SDK_KEY');
+            $sdkKey = $config['sdk_key'] ?? '';
 
             $options = new DevCycleOptions(
                 (bool) ($config['enable_edgedb'] ?? false),
@@ -28,6 +29,8 @@ class DevCycleServiceProvider extends ServiceProvider
 
             return new DevCycleClient((string) $sdkKey, $options);
         });
+
+        $this->app->singleton(DevCycleManagementClient::class);
     }
 
     public function boot(): void
