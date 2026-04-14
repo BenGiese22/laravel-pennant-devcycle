@@ -32,5 +32,7 @@ abstract class TestCase extends OrchestraTestCase
         ]);
 
         $app['config']->set('devcycle.register_routes', true);
+        $app['config']->set('devcycle.routes.middleware', ['api']);
+        $app['config']->set('devcycle.routes.prefix', 'api/devcycle');
     }
 }

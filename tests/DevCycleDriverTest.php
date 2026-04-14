@@ -62,3 +62,54 @@ it('throws when attempting to write feature state', function () {
 
     Feature::for($scope)->activate('my-feature');
 })->throws(BadMethodCallException::class);
+
+it('evaluates multiple features across scopes via getAll', function () {
+    $scopeA = new TestUser('user-a');
+    $scopeB = new TestUser('user-b');
+
+    /** @var MockInterface&DevCycleClient $client */
+    $client = \Mockery::mock(DevCycleClient::class);
+    $this->app->instance(DevCycleClient::class, $client);
+
+    /** @var ExpectationInterface $expectA1 */
+    $expectA1 = $client->shouldReceive('variableValue');
+    $expectA1->once()
+        ->with(\Mockery::on(fn (DevCycleUser $u) => $u->getUserId() === 'user-a'), 'feat-a', false)
+        ->andReturn(true);
+
+    /** @var ExpectationInterface $expectA2 */
+    $expectA2 = $client->shouldReceive('variableValue');
+    $expectA2->once()
+        ->with(\Mockery::on(fn (DevCycleUser $u) => $u->getUserId() === 'user-b'), 'feat-a', false)
+        ->andReturn(false);
+
+    /** @var ExpectationInterface $expectB1 */
+    $expectB1 = $client->shouldReceive('variableValue');
+    $expectB1->once()
+        ->with(\Mockery::on(fn (DevCycleUser $u) => $u->getUserId() === 'user-a'), 'feat-b', false)
+        ->andReturn('variant-x');
+
+    $driver = new \BenGiese22\LaravelPennantDevCycle\DevCycleDriver($client, ['default' => false]);
+
+    $result = $driver->getAll([
+        'feat-a' => [$scopeA, $scopeB],
+        'feat-b' => [$scopeA],
+    ]);
+
+    expect($result)->toBe([
+        'feat-a' => [true, false],
+        'feat-b' => ['variant-x'],
+    ]);
+});
+
+it('handles purge as a no-op without errors', function () {
+    /** @var MockInterface&DevCycleClient $client */
+    $client = \Mockery::mock(DevCycleClient::class);
+
+    $driver = new \BenGiese22\LaravelPennantDevCycle\DevCycleDriver($client, []);
+
+    $driver->purge(['some-feature']);
+    $driver->purge(null);
+
+    expect(true)->toBeTrue();
+});

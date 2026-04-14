@@ -18,6 +18,7 @@
 /public/storage
 /storage/*.key
 /storage/pail
+composer.lock
 /vendor
 /var
 Homestead.json

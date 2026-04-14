@@ -113,3 +113,22 @@ it('validates update payloads', function () {
 
     Http::assertNothingSent();
 });
+
+it('caches the OAuth token across sequential requests', function () {
+    Http::fake([
+        'https://auth.devcycle.com/oauth/token' => Http::response([
+            'access_token' => 'cached-token',
+            'expires_in' => 3600,
+        ], 200),
+        'https://api.devcycle.com/v2/projects/test-project/features*' => Http::response([
+            'data' => [],
+        ], 200),
+    ]);
+
+    $this->getJson('/api/devcycle/features')->assertOk();
+    $this->getJson('/api/devcycle/features')->assertOk();
+
+    $oauthCalls = Http::recorded(fn (Request $request) => $request->url() === 'https://auth.devcycle.com/oauth/token');
+
+    expect($oauthCalls)->toHaveCount(1);
+});

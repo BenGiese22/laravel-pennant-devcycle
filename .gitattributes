@@ -1,4 +1,18 @@
 * text=auto
-/tests export-ignore
-/doc export-ignore
-/vendor export-ignore
+
+/.github            export-ignore
+/.claude            export-ignore
+/tests              export-ignore
+/doc                export-ignore
+/var                export-ignore
+/vendor             export-ignore
+.editorconfig       export-ignore
+.gitattributes      export-ignore
+.gitignore          export-ignore
+CHANGELOG.md        export-ignore
+CLAUDE.md           export-ignore
+CONTRIBUTING.md     export-ignore
+SECURITY.md         export-ignore
+phpstan.neon.dist   export-ignore
+phpunit.xml.dist    export-ignore
+pint.json           export-ignore
